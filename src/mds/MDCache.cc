@@ -11443,8 +11443,7 @@ void MDCache::dispatch_fragment_dir(MDRequest *mdr)
     return;
 
   mdr->ls = mds->mdlog->get_current_segment();
-  EFragment *le = new EFragment(mds->mdlog, EFragment::OP_PREPARE,
-				basedirfrag.ino, basedirfrag.frag, info.bits);
+  EFragment *le = new EFragment(mds->mdlog, EFragment::OP_PREPARE, basedirfrag, info.bits);
   mds->mdlog->start_entry(le);
 
   for (list<CDir*>::iterator p = info.dirs.begin(); p != info.dirs.end(); ++p) {
@@ -11544,7 +11543,7 @@ void MDCache::_fragment_stored(MDRequest *mdr)
 	 rejoin_gather.count(p->first)))
       continue;
 
-    MMDSFragmentNotify *notify = new MMDSFragmentNotify(basedirfrag.ino, basedirfrag.frag, info.bits);
+    MMDSFragmentNotify *notify = new MMDSFragmentNotify(basedirfrag, info.bits);
 
     // freshly replicate new dirs to peers
     for (list<CDir*>::iterator q = info.resultfrags.begin();
@@ -11579,8 +11578,7 @@ void MDCache::_fragment_stored(MDRequest *mdr)
   }
 
   // journal commit
-  EFragment *le = new EFragment(mds->mdlog, EFragment::OP_COMMIT,
-				basedirfrag, info.bits);
+  EFragment *le = new EFragment(mds->mdlog, EFragment::OP_COMMIT, basedirfrag, info.bits);
   mds->mdlog->start_submit_entry(le, new C_MDC_FragmentCommit(this, basedirfrag,
 							      info.resultfrags));
 
@@ -11635,8 +11633,7 @@ void MDCache::_fragment_finish(dirfrag_t basedirfrag, list<CDir*>& resultfrags)
     (*p)->auth_unpin(this);
   }
 
-  EFragment *le = new EFragment(mds->mdlog, EFragment::OP_FINISH,
-			        basedirfrag.ino, basedirfrag.frag, uf.bits);
+  EFragment *le = new EFragment(mds->mdlog, EFragment::OP_FINISH, basedirfrag, uf.bits);
   mds->mdlog->start_submit_entry(le);
 
   finish_uncommitted_fragment(basedirfrag, EFragment::OP_FINISH);
@@ -11768,7 +11765,7 @@ void MDCache::rollback_uncommitted_fragments()
     dout(10) << " rolling back " << p->first << " refragment by " << uf.bits << " bits" << dendl;
 
     LogSegment *ls = mds->mdlog->get_current_segment();
-    EFragment *le = new EFragment(mds->mdlog, EFragment::OP_ROLLBACK, diri->ino(), p->first.frag, uf.bits);
+    EFragment *le = new EFragment(mds->mdlog, EFragment::OP_ROLLBACK, p->first, uf.bits);
     mds->mdlog->start_entry(le);
 
     list<frag_t> old_frags;
