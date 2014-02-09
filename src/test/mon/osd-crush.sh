@@ -38,6 +38,21 @@ function run() {
         teardown $dir || return 1
     done
 }
+
+function TEST_crush_rule_create_simple() {
+    local dir=$1
+    ./ceph osd crush rule dump replicated_ruleset xml | \
+        grep '<op>take</op><item>default</item>' | \
+        grep '<op>chooseleaf_firstn</op><num>0</num><type>host</type>' || return 1
+    local ruleset=ruleset
+    local root=host1
+    ./ceph osd crush add-bucket $root host
+    local failure_domain=osd
+    ./ceph osd crush rule create-simple $ruleset $root $failure_domain || return 1
+    ./ceph osd crush rule dump $ruleset xml | \
+        grep '<op>take</op><item>'$root'</item>' | \
+        grep '<op>choose_firstn</op><num>0</num><type>'$failure_domain'</type>' || return 1
+    ./ceph osd crush rule rm $ruleset || return 1
 }
 
 function TEST_crush_rule_dump() {
@@ -70,6 +85,21 @@ function TEST_crush_rule_all() {
 
     ./ceph osd crush rule rm $crush_ruleset || return 1
     ! ./ceph osd crush rule ls | grep $crush_ruleset || return 1
+}
+
+function TESTRESET_crush_rule_create_simple_exists() {
+    local dir=$1
+    run_mon $dir a --public-addr 127.0.0.1 \
+        --paxos-propose-interval=200 --debug-mon=20 --debug-paxos=20 
+    local ruleset=ruleset
+    local root=default
+    local failure_domain=host
+    ./ceph osd crush rule create-simple first $root $failure_domain # propose interval ignored the first time around
+    ./ceph osd crush rule create-simple $ruleset $root $failure_domain &
+    pid=$!
+    waitfor $dir 'already exists (pending)' \
+        ./ceph osd crush rule create-simple $ruleset $root $failure_domain
+    kill $pid
 }
 
 main osd-crush
