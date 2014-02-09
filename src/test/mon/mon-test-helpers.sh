@@ -41,6 +41,8 @@ function run_mon() {
 
     ./ceph-mon \
         --id $id \
+        --paxos-propose-interval=0.1 \
+        --osd-pool-default-erasure-code-directory=.libs \
         --debug-mon 20 \
         --debug-ms 20 \
         --chdir= \
@@ -56,10 +58,30 @@ function kill_daemons() {
     local dir=$1
     for pidfile in $(find $dir | grep pidfile) ; do
         for try in 0 1 1 1 2 3 ; do
-            kill $(cat $pidfile 2> /dev/null) 2> /dev/null || break
+            kill -9 $(cat $pidfile 2> /dev/null) 2> /dev/null || break
             sleep $try
         done
     done
+}
+
+function waitfor() {
+    local dir="$1"
+    shift
+    local expect="$1"
+    shift
+    local tmpfile=$dir/expect.out
+    for delay in 1 1 2 3 4 5 6 7 8 9 10 ; do
+        "$@" >$tmpfile 2>&1 || true
+        if grep "$expect" $tmpfile ; then
+            break
+        else
+            sleep $delay
+        fi
+    done
+    if ! grep "$expect" $tmpfile ; then
+        cat $tmpfile
+        return 1
+    fi
 }
 
 function main() {
@@ -69,9 +91,8 @@ function main() {
     export CEPH_CONF=/dev/null
     unset CEPH_ARGS
 
-    setup $dir || return 1
     set -x
+    setup $dir || return 1
     run $dir || return 1
-    set +x
     teardown $dir || return 1
 }
