@@ -1155,6 +1155,12 @@ void CrushWrapper::dump_rules(Formatter *f) const
   for (int i=0; i<get_max_rules(); i++) {
     if (!rule_exists(i))
       continue;
+    dump_rule(i, f);
+  }
+}
+
+void CrushWrapper::dump_rule(int i, Formatter *f) const
+{
     f->open_object_section("rule");
     f->dump_int("rule_id", i);
     if (get_rule_name(i))
@@ -1214,7 +1220,6 @@ void CrushWrapper::dump_rules(Formatter *f) const
     }
     f->close_section();
     f->close_section();
-  }
 }
 
 void CrushWrapper::list_rules(Formatter *f) const
