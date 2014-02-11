@@ -3,7 +3,7 @@
 /*
  * Ceph - scalable distributed file system
  *
- * Copyright (C) 2013 Cloudwatt <libre.licensing@cloudwatt.com>
+ * Copyright (C) 2013,2014 Cloudwatt <libre.licensing@cloudwatt.com>
  *
  * Author: Loic Dachary <loic@dachary.org>
  *
@@ -23,14 +23,14 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "test/osd/ceph_erasure_code_benchmark.h"
+#include "ceph_erasure_code_benchmark.h"
 #include "global/global_context.h"
 #include "global/global_init.h"
 #include "common/ceph_argparse.h"
 #include "common/config.h"
 #include "common/Clock.h"
 #include "include/utime.h"
-#include "osd/ErasureCodePlugin.h"
+#include "erasure-code/ErasureCodePlugin.h"
 
 namespace po = boost::program_options;
 

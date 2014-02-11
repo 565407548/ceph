@@ -17,7 +17,7 @@
 #ifndef CEPH_ERASURE_CODE_JERASURE_H
 #define CEPH_ERASURE_CODE_JERASURE_H
 
-#include "osd/ErasureCodeInterface.h"
+#include "erasure-code/ErasureCodeInterface.h"
 
 class ErasureCodeJerasure : public ErasureCodeInterface {
 public:
@@ -25,13 +25,21 @@ public:
   int m;
   int w;
   const char *technique;
+  string ruleset_root;
+  string ruleset_failure_domain;
 
   ErasureCodeJerasure(const char *_technique) :
-    technique(_technique)
+    technique(_technique),
+    ruleset_root("default"),
+    ruleset_failure_domain("host")
   {}
 
   virtual ~ErasureCodeJerasure() {}
   
+  virtual int create_ruleset(const string &name,
+			     CrushWrapper &crush,
+			     ostream *ss) const;
+
   virtual unsigned int get_chunk_count() const {
     return k + m;
   }

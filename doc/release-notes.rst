@@ -2,8 +2,52 @@
  Release Notes
 ===============
 
-v0.76 (frozen, not yet released)
---------------------------------
+v0.77 (frozen, pending release)
+-------------------------------
+
+This promises to be the final release before the firefly feature freeze.
+
+Upgrading
+~~~~~~~~~
+
+* The 'ceph -s' or 'ceph status' command's 'num_in_osds' field in the
+  JSON and XML output has been changed from a string to an int.
+
+* The recently added 'ceph mds set allow_new_snaps' command's syntax
+  has changed slightly; it is now 'ceph mds set allow_new_snaps true'.
+  The 'unset' command has been removed; instead, set the value to
+  'false'.
+
+
+Notable Changes
+~~~~~~~~~~~~~~~
+
+* osd: client IO path changes for EC (Samuel Just)
+* common: portability changes to support libc++ (Noah Watkins)
+* common: switch to unordered_map from hash_map (Noah Watkins)
+* rgw: switch from mongoose to civetweb (Yehuda Sadeh)
+* osd: improve locking in fd lookup cache (Samuel Just, Greg Farnum)
+* doc: many many updates (John Wilkins)
+* rgw: user quotas (Yehuda Sadeh)
+* mon: persist quorum features to disk (Greg Farnum)
+* mon: MForward tests (Loic Dachary)
+* mds: inline data support (Li Wang, Yunchuan Wen)
+* rgw: fix many-part multipart uploads (Yehuda Sadeh)
+* osd: new keyvaluestore-dev backend based on leveldb (Haomai Wang)
+* rbd: prevent deletion of images with watchers (Ilya Dryomov)
+* osd: avoid touching leveldb for some xattrs (Haomai Wang, Sage Weil)
+* mailmap: affiliation updates (Loic Dachary)
+* osd: new OSDMap encoding (Greg Farnum)
+* osd: generalize scrubbing infrastructure to allow EC (David Zafman)
+* rgw: several doc fixes (Alexandre Marangone)
+* librados: add C API coverage for atomic write operations (Christian Marie)
+* rgw: improve swift temp URL support (Yehuda Sadeh)
+
+thru  2c504ea
+
+
+v0.76
+-----
 
 This release includes another batch of updates for firefly
 functionality.  Most notably, the cache pool infrastructure now
@@ -35,33 +79,39 @@ Upgrading
 Notable Changes
 ~~~~~~~~~~~~~~~
 
-* mon: allow adjustment of cephfs max file size via 'ceph mds set max_file_size' (Sage Weil)
-* osd: cache pool support for snapshots (Sage Weil)
-* osd: backfill to multiple targets (David Zafman)
-* osd: fix omap_clear operation to not zap xattrs (Sam Just, Yan, Zheng)
-* crush: usability and test improvements (Loic Dachary)
-* mds: store directories in omap instead of tmap (Yan, Zheng)
-* librados, osd: new TMAP2OMAP operation (Yan, Zheng)
-* mailmap updates (Loic Dachary)
-* rpm: misc fixes (Ken Dreyer)
-* erasure-code: improve buffer alignment (Loic Dachary)
-* erasure-code: rewrite region-xor using vector operations (Andreas Peters)
-* osd: fix and cleanup misc backfill issues (David Zafman)
-* osd: track erasure compatibility (David Zafman)
-* many portability improvements (Noah Watkins)
-* many unit test improvements (Loic Dachary)
 * build: misc improvements (Ken Dreyer)
-* rgw: fix object placement read op (Yehuda Sadeh)
-* config: recursive metavariable expansion (Loic Dachary)
 * ceph-disk: generalize path names, add tests (Loic Dachary)
 * ceph-disk: misc improvements for puppet (Loic Dachary)
-* mon: do not use keyring if auth = none (Loic Dachary)
-* mds: always store backtrace in default pool (Yan, Zheng)
-* rbd: make 'rbd list' return empty list and success on empty pool (Josh Durgin)
+* ceph-disk: several bug fixes (Loic Dachary)
+* ceph-fuse: fix race for sync reads (Sage Weil)
+* config: recursive metavariable expansion (Loic Dachary)
+* crush: usability and test improvements (Loic Dachary)
 * doc: misc fixes (David Moreau Simard, Kun Huang)
+* erasure-code: improve buffer alignment (Loic Dachary)
+* erasure-code: rewrite region-xor using vector operations (Andreas Peters)
+* librados, osd: new TMAP2OMAP operation (Yan, Zheng)
+* mailmap updates (Loic Dachary)
+* many portability improvements (Noah Watkins)
+* many unit test improvements (Loic Dachary)
+* mds: always store backtrace in default pool (Yan, Zheng)
+* mds: store directories in omap instead of tmap (Yan, Zheng)
+* mon: allow adjustment of cephfs max file size via 'ceph mds set max_file_size' (Sage Weil)
+* mon: do not create erasure rules by default (Sage Weil)
+* mon: do not generate spurious MDSMaps in certain cases (Sage Weil)
+* mon: do not use keyring if auth = none (Loic Dachary)
+* mon: fix pg_temp leaks (Joao Eduardo Luis)
+* osd: backfill to multiple targets (David Zafman)
+* osd: cache pool support for snapshots (Sage Weil)
+* osd: fix and cleanup misc backfill issues (David Zafman)
+* osd: fix omap_clear operation to not zap xattrs (Sam Just, Yan, Zheng)
+* osd: ignore num_objects_dirty on scrub for old pools (Sage Weil)
 * osd: include more info in pg query result (Sage Weil)
-
-up to 03d7d97
+* osd: track erasure compatibility (David Zafman)
+* rbd: make 'rbd list' return empty list and success on empty pool (Josh Durgin)
+* rgw: fix object placement read op (Yehuda Sadeh)
+* rgw: fix several CORS bugs (Robin H. Johnson)
+* specfile: fix RPM build on RHEL6 (Ken Dreyer, Derek Yarnell)
+* specfile: ship libdir/ceph (Key Dreyer)
 
 
 v0.75
