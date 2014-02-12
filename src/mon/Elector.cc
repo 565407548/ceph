@@ -429,12 +429,40 @@ void Elector::dispatch(Message *m)
 	m->put();
 	delete peermap;
 	return;
-      }
-      if (peermap->epoch < mon->monmap->epoch) {
+      } else if (peermap->epoch < mon->monmap->epoch) {
 	dout(0) << m->get_source_inst() << " has older monmap epoch " << peermap->epoch
 		<< " < my epoch " << mon->monmap->epoch 
 		<< dendl;
-      } 
+      } else {
+        // check if we are missing any peers on our monmap; if so, and if they
+        // are in our extra_probe_peers, make sure to probe everyone again.
+        list<entity_addr_t> their_peers;
+        peermap->list_addrs(their_peers);
+        bool probe = false;
+
+        for (list<entity_addr_t>::iterator it = their_peers.begin();
+             it != their_peers.end(); ++it) {
+          string name = peermap->get_name(*it);
+          if (mon->monmap->contains(name) &&
+              mon->monmap->get_addr(name).is_blank_ip() &&
+              !(*it).is_blank_ip() &&
+              mon->extra_probe_peers.count(*it)) {
+            dout(0) << "missing peer " << *it
+                    << " as told by " << m->get_source_inst()
+                    << " -- bootstrap and probe!" << dendl;
+            probe = true;
+            break;
+          }
+        }
+
+        if (probe) {
+          cancel_timer();
+          mon->bootstrap();
+          m->put();
+          delete peermap;
+          return;
+        }
+      }
       delete peermap;
 
       switch (em->op) {
